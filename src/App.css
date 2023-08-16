@@ -1,0 +1,13 @@
+#container {
+    height: 100vh;
+    background-color: #48d6d4;
+    color: #ffffff;
+}
+
+#clock-setting {
+    width: 50%;
+}
+
+#clock {
+    width: 240px;
+}
