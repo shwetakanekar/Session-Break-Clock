@@ -8,6 +8,7 @@ import './App.css';
 function App() {
   const [sessionLength, setSessionLength] = useState(25);
   const [breakLength, setBreakLength] = useState(5);
+  const [timeLeft, setTimeLeft] = useState('25:00');
 
   const onSessionLengthIncrement = () => {
     if (sessionLength < 60) {
@@ -31,6 +32,12 @@ function App() {
     if (breakLength > 1) {
       setBreakLength(prev => prev - 1);
     }
+  };
+
+  const onReset = () => {
+    setBreakLength(5);
+    setSessionLength(25);
+    setTimeLeft('25:00');
   };
 
   return (
@@ -57,10 +64,19 @@ function App() {
         </div>
         <div id='clock' className='d-flex flex-column align-items-center border border-light border-3 rounded-4 p-2'>
           <h4 id='timer-label'>Session</h4>
-          <div id="time-left" className='fs-1'>25:00</div>
+          <div id="time-left" className='fs-1'>{timeLeft}</div>
           <div>
-            <button id='start_stop' className='btn btn-light rounded-circle px-2 py-0'><FontAwesomeIcon icon={faPlay} size='2xs' /><FontAwesomeIcon icon={faPause} size='2xs' /></button>
-            <button id='reset' className='btn btn-light rounded-circle px-2 py-0 m-2'><FontAwesomeIcon icon={faRotate} size='2xs' /></button>
+            <button 
+              id='start_stop' 
+              className='btn btn-light rounded-circle px-2 py-0'>
+              <FontAwesomeIcon icon={faPlay} size='2xs' /><FontAwesomeIcon icon={faPause} size='2xs' />
+            </button>
+            <button 
+              id='reset' 
+              className='btn btn-light rounded-circle px-2 py-0 m-2'
+              onClick={onReset}>
+              <FontAwesomeIcon icon={faRotate} size='2xs' />
+            </button>
           </div>
         </div>
       </div>
