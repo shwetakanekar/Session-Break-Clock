@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownLong, faPause, faPlay, faRotate, faUpLong } from '@fortawesome/free-solid-svg-icons';
@@ -7,8 +7,57 @@ import './App.css';
 
 function App() {
   const [sessionLength, setSessionLength] = useState(25);
+  const [sessionLengthMilliseconds, setSessionLengthMilliseconds] = useState(25 * 60 * 1000);
   const [breakLength, setBreakLength] = useState(5);
+  const [breakLengthMilliseconds, setBreakLengthMilliseconds] = useState(5 * 60 * 1000);
   const [timeLeft, setTimeLeft] = useState('25:00');
+  const [isSession, setIsSession] = useState(true);
+  const [isSessionTimerOn, setIsSessionTimerOn] = useState(false);
+  const [isBreakTimerOn, setIsBreakTimerOn] = useState(false);
+
+  useEffect(() => {
+    if (isSessionTimerOn) {
+      let sessionInterval = setInterval(() => {
+        if (sessionLengthMilliseconds === 0) {
+          setIsSession(false);
+          setIsSessionTimerOn(false);
+          setIsBreakTimerOn(true);
+          setSessionLengthMilliseconds(sessionLength * 60 * 1000);
+        }
+        else {
+          let timerValue = sessionLengthMilliseconds - 1000;
+          let minutesLeft = ('0' + Math.floor((timerValue % (1000 * 60 * 60)) / (1000 * 60))).slice(-2);
+          let secondsLeft = ('0' + Math.floor((timerValue % (1000 * 60)) / 1000)).slice(-2);
+          setTimeLeft(minutesLeft + ':' + secondsLeft);
+          setSessionLengthMilliseconds(prev => prev - 1000);
+        }
+      }, 1000);
+      return () => clearInterval(sessionInterval);
+    }
+    if (isBreakTimerOn) {
+      let breakInterval = setInterval(() => {
+        if (breakLengthMilliseconds === 0) {
+          setIsSession(true);
+          setIsBreakTimerOn(false);
+          setIsSessionTimerOn(true);
+          setBreakLengthMilliseconds(breakLength * 60 * 1000);
+        }
+        else {
+          let timerValue = breakLengthMilliseconds - 1000;
+          let minutesLeft = ('0' + Math.floor((timerValue % (1000 * 60 * 60)) / (1000 * 60))).slice(-2);
+          let secondsLeft = ('0' + Math.floor((timerValue % (1000 * 60)) / 1000)).slice(-2);
+          setTimeLeft(minutesLeft + ':' + secondsLeft);
+          setBreakLengthMilliseconds(prev => prev - 1000);
+        }
+      }, 1000);
+      return () => clearInterval(breakInterval);
+    }
+  }, [sessionLengthMilliseconds, isSessionTimerOn, breakLengthMilliseconds, isBreakTimerOn]);
+
+  useEffect(() => {
+    setSessionLengthMilliseconds(sessionLength * 60 * 1000);
+    setBreakLengthMilliseconds(breakLength * 60 * 1000);
+  }, [sessionLength, breakLength]);
 
   const onSessionLengthIncrement = () => {
     if (sessionLength < 60) {
@@ -36,8 +85,18 @@ function App() {
 
   const onReset = () => {
     setBreakLength(5);
+    setBreakLengthMilliseconds(5 * 60 * 1000);
     setSessionLength(25);
+    setSessionLengthMilliseconds(25 * 60 * 1000);
     setTimeLeft('25:00');
+    setIsSession(true);
+    setIsSessionTimerOn(false);
+    setIsBreakTimerOn(false);
+  };
+
+  const startTimer = () => {
+    setIsSessionTimerOn(prev => !prev);
+    setIsBreakTimerOn(prev => !prev);
   };
 
   return (
@@ -63,13 +122,16 @@ function App() {
           </div>
         </div>
         <div id='clock' className='d-flex flex-column align-items-center border border-light border-3 rounded-4 p-2'>
-          <h4 id='timer-label'>Session</h4>
+          <h4 id='timer-label'>{isSession ? 'Session': 'Break'}</h4>
           <div id="time-left" className='fs-1'>{timeLeft}</div>
           <div>
             <button 
               id='start_stop' 
-              className='btn btn-light rounded-circle px-2 py-0'>
-              <FontAwesomeIcon icon={faPlay} size='2xs' /><FontAwesomeIcon icon={faPause} size='2xs' />
+              className='btn btn-light rounded-circle px-2 py-0'
+              onClick={startTimer}>
+              { (isSessionTimerOn || isBreakTimerOn) ? 
+                <FontAwesomeIcon icon={faPause} size='2xs' /> : 
+                <FontAwesomeIcon icon={faPlay} size='2xs' /> }              
             </button>
             <button 
               id='reset' 
