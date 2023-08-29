@@ -23,6 +23,7 @@ function App() {
           setIsSessionTimerOn(false);
           setIsBreakTimerOn(true);
           setSessionLengthMilliseconds(sessionLength * 60 * 1000);
+          setTimeLeft(('0' + breakLength).slice(-2) + ':00');
         }
         else {
           let timerValue = sessionLengthMilliseconds - 1000;
@@ -30,6 +31,9 @@ function App() {
           let secondsLeft = ('0' + Math.floor((timerValue % (1000 * 60)) / 1000)).slice(-2);
           setTimeLeft(minutesLeft + ':' + secondsLeft);
           setSessionLengthMilliseconds(prev => prev - 1000);
+          if (timerValue === 0) {
+            document.getElementById('beep').play();
+          }
         }
       }, 1000);
       return () => clearInterval(sessionInterval);
@@ -41,6 +45,7 @@ function App() {
           setIsBreakTimerOn(false);
           setIsSessionTimerOn(true);
           setBreakLengthMilliseconds(breakLength * 60 * 1000);
+          setTimeLeft(('0' + sessionLength).slice(-2) + ':00');
         }
         else {
           let timerValue = breakLengthMilliseconds - 1000;
@@ -48,6 +53,9 @@ function App() {
           let secondsLeft = ('0' + Math.floor((timerValue % (1000 * 60)) / 1000)).slice(-2);
           setTimeLeft(minutesLeft + ':' + secondsLeft);
           setBreakLengthMilliseconds(prev => prev - 1000);
+          if (timerValue === 0) {
+            document.getElementById('beep').play();
+          }
         }
       }, 1000);
       return () => clearInterval(breakInterval);
@@ -57,6 +65,7 @@ function App() {
   useEffect(() => {
     setSessionLengthMilliseconds(sessionLength * 60 * 1000);
     setBreakLengthMilliseconds(breakLength * 60 * 1000);
+    setTimeLeft(('0' + sessionLength).slice(-2) + ':00');
   }, [sessionLength, breakLength]);
 
   const onSessionLengthIncrement = () => {
@@ -92,11 +101,18 @@ function App() {
     setIsSession(true);
     setIsSessionTimerOn(false);
     setIsBreakTimerOn(false);
+    let beep = document.getElementById('beep');
+    beep.pause();
+    beep.currentTime = 0;
   };
 
   const startTimer = () => {
-    setIsSessionTimerOn(prev => !prev);
-    setIsBreakTimerOn(prev => !prev);
+    if (isSession) {
+      setIsSessionTimerOn(prev => !prev);
+    }
+    else {
+      setIsBreakTimerOn(prev => !prev);
+    }
   };
 
   return (
@@ -107,17 +123,41 @@ function App() {
           <div>
             <h4 id='break-label'>Break Length</h4>
             <div className='d-flex justify-content-center'>
-              <button id='break-increment' className='btn btn-light rounded-circle px-2 py-0' onClick={onBreakLengthIncrement}><FontAwesomeIcon icon={faUpLong} size='2xs' /></button>
+              <button 
+                id='break-increment' 
+                className='btn btn-light rounded-circle px-2 py-0' 
+                onClick={onBreakLengthIncrement}
+                disabled={isSessionTimerOn || isBreakTimerOn}>
+                <FontAwesomeIcon icon={faUpLong} size='2xs' />
+              </button>
               <div id='break-length' className='mx-2'>{breakLength}</div>
-              <button id="break-decrement" className='btn btn-light rounded-circle px-2 py-0' onClick={onBreakLengthDecrement}><FontAwesomeIcon icon={faDownLong} size='2xs' /></button>
+              <button 
+                id="break-decrement" 
+                className='btn btn-light rounded-circle px-2 py-0' 
+                onClick={onBreakLengthDecrement}
+                disabled={isSessionTimerOn || isBreakTimerOn}>
+                <FontAwesomeIcon icon={faDownLong} size='2xs' />
+              </button>
             </div>
           </div>
           <div>
             <h4 id='session-label'>Session Length</h4>
             <div className='d-flex justify-content-center'>
-              <button id='session-increment' className='btn btn-light rounded-circle px-2 py-0' onClick={onSessionLengthIncrement}><FontAwesomeIcon icon={faUpLong} size='2xs' /></button>
+              <button 
+                id='session-increment' 
+                className='btn btn-light rounded-circle px-2 py-0' 
+                onClick={onSessionLengthIncrement}
+                disabled={isSessionTimerOn || isBreakTimerOn}>
+                <FontAwesomeIcon icon={faUpLong} size='2xs' />
+              </button>
               <div id='session-length' className='mx-2'>{sessionLength}</div>
-              <button id='session-decrement' className='btn btn-light rounded-circle px-2 py-0' onClick={onSessionLengthDecrement}><FontAwesomeIcon icon={faDownLong} size='2xs' /></button>
+              <button 
+                id='session-decrement' 
+                className='btn btn-light rounded-circle px-2 py-0' 
+                onClick={onSessionLengthDecrement}
+                disabled={isSessionTimerOn || isBreakTimerOn}>
+                <FontAwesomeIcon icon={faDownLong} size='2xs' />
+              </button>
             </div>
           </div>
         </div>
@@ -140,6 +180,9 @@ function App() {
               <FontAwesomeIcon icon={faRotate} size='2xs' />
             </button>
           </div>
+          <audio 
+            id='beep' 
+            src='https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav' />
         </div>
       </div>
     </>
