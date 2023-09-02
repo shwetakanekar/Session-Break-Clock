@@ -118,7 +118,7 @@ function App() {
   return (
     <>
       <div id='container' className='d-flex flex-column justify-content-center align-items-center'>
-        <h2 className='mb-4'>Break Session Clock</h2>
+        <h1 className='mb-5'>Break Session Clock</h1>
         <div id='clock-setting' className='d-flex justify-content-around p-3'>
           <div>
             <h4 id='break-label'>Break Length</h4>
@@ -162,8 +162,8 @@ function App() {
           </div>
         </div>
         <div id='clock' className='d-flex flex-column align-items-center border border-light border-3 rounded-4 p-2'>
-          <h4 id='timer-label'>{isSession ? 'Session': 'Break'}</h4>
-          <div id="time-left" className='fs-1'>{timeLeft}</div>
+          <h5 id='timer-label'>{isSession ? 'Session': 'Break'}</h5>
+          <div id="time-left">{timeLeft}</div>
           <div>
             <button 
               id='start_stop' 

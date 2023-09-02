@@ -9,5 +9,10 @@
 }
 
 #clock {
-    width: 240px;
+    width: 260px;
+}
+
+#time-left {
+    font-size: 4rem;
+    line-height: 4rem;
 }
